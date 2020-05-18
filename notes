@@ -1,0 +1,107 @@
+function displayProcessOwner(data) {
+
+    var display = "";
+
+    $.each(data, function (i, owner) {
+        display += "<tr>";
+        display += "<td>" + owner.ownr + "</td>";
+        display += "<td>" + owner.fullName + "</td>";
+        display += "<td>" + owner.dateSubmittedFormated + "</td>";
+        display += "<td>";
+            display += "<a data-owner-id='" + owner.id + "' data-owner-txt='" + owner.ownr + "' class='btn-update-this-owner' href='#'>Update</a> | ";
+            display += "<a data-owner-id='" + owner.id + "' class='btn-delete-this-owner' href='#'>Delete</a>";
+        display += "</td>";
+        display += "</tr>";
+    });
+        
+    $("#process_owner_list").html(display);
+}
+
+
+
+$(document).on("click", ".btn-update-this-owner", function (e) {
+    e.preventDefault();
+
+    $(".add_new_owner_msg").html("");
+
+    var owner = $(this).attr("data-owner-txt");
+    var ownerID = $(this).attr("data-owner-id");
+    $(".btn-save-owner").attr("data-task", "update");
+
+    $(".btn-save-owner").attr("data-owner-id", ownerID);
+
+    $("#new-owner").val(owner);
+    $(".sub-section-form-title").html("Update Owner");
+
+    $('#add_update_owner_modal').modal('show');
+});
+
+
+
+Table -> Machine
+	id, machineName, machineType
+
+// Model -> MachineMod.php
+class MachineMod extends Connection{
+	public function get_all_machine($id){
+	
+		$query = "SELECT * FROM Machine WHERE id=" . $id;
+
+		$results = $this->get_assoc_array($query);
+		
+		return $results;
+	}
+}
+
+// Handler -> get_all_machine.php
+
+require_once("model/MachineMod.php");
+
+$machineObj = new MachineMod();
+
+$id = isset($_POST['machineID']) ? $_POST['machineID'] : 0; // 1
+
+$results = $machineObj->get_all_machine($id);
+
+echo json_encode($results);
+
+
+##########################################
+
+var machineID = 1;
+
+$.post(
+	"Handler/get_all_machine.php",
+	{
+		"machineID" : machineID // POST DATA
+	},
+	function(data){
+		var dataObj = JSON.parse(data);
+		
+		$.each(dataObj, function(i, machine){
+			console.log(machine.id);
+			console.log(machine.machineName);
+			console.log(machine.machineType);
+		})
+	}
+);
+
+
+[
+	"0" : { // -> machine
+		"id" : 1,
+		"machineName" : "tester1",
+		"machineType" : "tester"
+	},
+	"1" : {
+		"id" : 2,
+		"machineName" : "tester2",
+		"machineType" : "tester"
+	}
+]
+
+
+<form action='Handler/get_all_machine.php' method="post">
+	<input type='text' name='machineID' />
+	<input type='submit' name='btn-submit' value='Submit'/>
+</form>
